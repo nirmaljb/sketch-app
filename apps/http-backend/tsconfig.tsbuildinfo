@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/middlware/token.ts","./types/express/index.d.ts"],"version":"5.8.2"}
