@@ -132,6 +132,10 @@ app.post('/create-room', tokenValidation, async (req: RequestCustom, res) => {
         res.json({ roomId: response.id });
         return;
     }catch(err) {
+        if(ws.CLOSED) {
+            res.json({ message: 'Served closed on you' });
+            return;
+        }
         res.status(500).json({ message: 'Most probably a room already exists with this name', error: err })
     }
 

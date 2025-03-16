@@ -1,24 +1,29 @@
 import WebSocket from 'ws';
-import jwt, { JwtPayload } from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 import 'dotenv/config';
 import { IncomingMessage } from "http";
 
-function checkUser(token: string | null): string | null {
-    if(token) {
-        jwt.verify(token, process.env.JWT_SECRET || '', (err, decoded) => {
-            if(typeof decoded == 'string') {
-                return null;
-            }
+export interface User {
+    ws: WebSocket,
+    rooms: string[],
+    userid: string
+};
 
-            if(!decoded || decoded.userId) {
-                return null;
-            }
+const user: User[] = []
 
-            const userid = decoded.userid;
-            return userid
-        })
+function checkUser(token: string): string | null {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || '');
+
+    if(typeof decoded === 'string') {
+        return null;
     }
-    return null;
+
+    if(!decoded || !decoded.userid) {
+        return null;
+    }
+
+    console.log(decoded);
+    return decoded.userid;
 }
 
 const wss = new WebSocket.Server({ port: 8080 });
@@ -32,9 +37,9 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
 
     const urlObj = new URL(req.url || '', 'http://localhost:8000/')
     const token = urlObj.searchParams.get('token');
-    const userid = checkUser(token);
+    const userid = checkUser(token ?? '');
 
-    console.log(userid);
+    console.log(token, userid);
     
     if(!userid) {
         ws.close();
@@ -50,5 +55,5 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
 
     ws.on('close', () => {
         console.log('Client disconnted');
-    })
+    });
 })
