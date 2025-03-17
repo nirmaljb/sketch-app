@@ -96,7 +96,7 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
                 });
                 // ws.send(JSON.stringify(parsedData));
             }
-            console.log(users);
+            // console.log(users);
         }catch(err) {
             ws.send('Something is wrong with your input');
         }

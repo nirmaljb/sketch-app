@@ -144,7 +144,6 @@ app.post('/create-room', tokenValidation, async (req: RequestCustom, res) => {
 
 app.get('/chats/:roomid', async (req, res) => {
     const { roomid } = req.params;
-    // res.json(roomid);
         try {
             const response = await prisma.chat.findMany({
                 where: {
@@ -155,13 +154,35 @@ app.get('/chats/:roomid', async (req, res) => {
                 },
                 take: 50
             })
-
             res.json(response);
+            return;
         }catch(err) {
             res.json({ message: 'Something went wrong with prisma', error: err });
         }
 
         res.status(500).json({ message: 'Something went from'});
+});
+
+app.get('/roomid/:slug', async (req, res) => {
+    const { slug } = req.params;
+    try {
+        const response = await prisma.room.findUnique({
+            where: {
+                slug: slug
+            }
+        });
+
+        if(response == null) {
+            res.json({ message: 'Got no response from the db' });
+            return;
+        }
+
+        res.json({ roomid: response.id, response });
+        return;
+    }catch(err) {
+        res.json({ message: 'Something went wrong with prisma', error: err });
+    }
+    res.status(500).json({ message: 'Something went wrong, try again' });
 });
 
 app.listen(8000, () => {
